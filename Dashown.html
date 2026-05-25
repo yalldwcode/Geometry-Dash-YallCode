@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YallDash — Owner Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:       #cc1111;
+      --red-bright:#ff2222;
+      --red-dark:  #7a0000;
+      --gold:      #ffcc00;
+      --gold-dim:  #b38a00;
+      --bg:        #080808;
+      --bg2:       #0f0f0f;
+      --bg3:       #160404;
+      --border:    #250606;
+      --border2:   #3a0a0a;
+      --text:      #f0e0d0;
+      --text-dim:  #7a5a50;
+      --green:     #00ff88;
+      --green-dark:#004422;
+      --cyan:      #00ccdd;
+      --owner-clr: #ffcc00;
+      --admin-clr: #cc1111;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+    }
+
+    /* Scanlines */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ════════════════════════════════
+       LOGIN SCREEN
+    ════════════════════════════════ */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 50%, #1a0000 0%, var(--bg) 80%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23cc1111' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      padding: 2rem;
+    }
+
+    .login-box {
+      width: min(400px, 100%);
+      background: var(--bg2);
+      border: 2px solid var(--border2);
+      padding: 2.5rem 2rem;
+      position: relative;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+    }
+
+    .login-box::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red-dark), transparent);
+    }
+
+    .login-brand {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.65rem;
+      color: var(--red-bright);
+      text-shadow: 0 0 12px rgba(255,34,34,0.6);
+      text-align: center;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.2em;
+    }
+
+    .login-subtitle {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.1em;
+    }
+
+    .field-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--bg);
+      border: 2px solid var(--border2);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 1px var(--red-dark), inset 0 0 8px rgba(204,17,17,0.15);
+    }
+
+    .field-input::placeholder { color: #333; }
+
+    .login-btn {
+      width: 100%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      padding: 1rem;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      box-shadow: 0 4px 0 var(--red-dark), 0 0 20px rgba(204,17,17,0.4);
+      transition: filter 0.15s, transform 0.1s, box-shadow 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    .login-btn:hover  { filter: brightness(1.2); }
+    .login-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--red-dark); }
+    .login-btn:disabled {
+      background: #333;
+      box-shadow: none;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .login-error {
+      display: none;
+      background: rgba(204,17,17,0.12);
+      border: 1px solid var(--red-dark);
+      color: #ff6666;
+      font-size: 0.65rem;
+      padding: 0.6rem 1rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .login-spinner {
+      display: none;
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-dim);
+      font-size: 0.65rem;
+      animation: dotPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ════════════════════════════════
+       DASHBOARD
+    ════════════════════════════════ */
+    #dashboard {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    #dashboard.visible {
+      display: flex;
+    }
+
+    /* Sidebar + main layout */
+    .dash-layout {
+      display: flex;
+      flex: 1;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: var(--bg2);
+      border-right: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      padding: 1.5rem 1.2rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-brand-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      color: var(--red-bright);
+      text-shadow: 0 0 10px rgba(255,34,34,0.5);
+    }
+
+    .sidebar-brand-sub {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+
+    .nav-section-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      padding: 1rem 1.2rem 0.4rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.75rem 1.2rem;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: var(--bg3);
+      color: var(--text);
+      border-left-color: var(--red-dark);
+    }
+
+    .nav-item.active {
+      background: var(--bg3);
+      color: var(--red-bright);
+      border-left-color: var(--red-bright);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 1rem 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--text-dim);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      border-color: var(--red-dark);
+      color: var(--red-bright);
+      background: var(--bg3);
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--bg2);
+      border-bottom: 2px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    .topbar-title span { color: var(--text); }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .user-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      color: var(--text);
+    }
+
+    .badge {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      padding: 0.25rem 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-owner {
+      background: linear-gradient(135deg, #7a5a00, #3a2a00);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      box-shadow: 0 0 8px rgba(255,204,0,0.3);
+    }
+
+    .badge-admin {
+      background: linear-gradient(135deg, var(--red-dark), #2a0000);
+      border: 1px solid var(--red);
+      color: #ff8888;
+    }
+
+    /* ── Content area ── */
+    .dash-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .dash-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    /* Panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panel-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.75rem;
+      color: var(--red-bright);
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Stats row */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .qs-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--red);
+      padding: 1.2rem 1rem;
+    }
+
+    .qs-label {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .qs-value {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+
+    /* Message broadcast */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-row {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--red);
+    }
+
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    .form-select option { background: var(--bg2); }
+
+    .action-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      padding: 0.7rem 1.2rem;
+      cursor: pointer;
+      border: none;
+      transition: filter 0.15s, transform 0.1s;
+      letter-spacing: 0.05em;
+    }
+
+    .action-btn:active { transform: translateY(2px); }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 3px 0 var(--red-dark);
+    }
+    .btn-danger:hover { filter: brightness(1.2); }
+
+    .btn-success {
+      background: #004400;
+      color: var(--green);
+      border: 1px solid #006600;
+      box-shadow: 0 3px 0 #002200;
+    }
+    .btn-success:hover { filter: brightness(1.3); }
+
+    .btn-neutral {
+      background: #1a1a1a;
+      color: var(--text-dim);
+      border: 1px solid #333;
+      box-shadow: 0 3px 0 #111;
+    }
+    .btn-neutral:hover { color: var(--text); filter: brightness(1.2); }
+
+    /* Log / activity feed */
+    .activity-log {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .log-entry {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .log-time { color: #333; flex-shrink: 0; }
+    .log-msg.ok     { color: var(--green); }
+    .log-msg.warn   { color: var(--gold); }
+    .log-msg.error  { color: var(--red-bright); }
+    .log-msg.info   { color: var(--cyan); }
+
+    /* Action feedback toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-left: 4px solid var(--green);
+      padding: 0.8rem 1.5rem;
+      font-size: 0.7rem;
+      color: var(--green);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: var(--red-bright); color: var(--red-bright); }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+
+    .toggle-label { font-size: 0.75rem; }
+    .toggle-desc { font-size: 0.62rem; color: var(--text-dim); margin-top: 0.2rem; }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #222;
+      border: 1px solid #444;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      background: #555;
+      top: 3px; left: 3px;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .toggle input:checked + .toggle-slider { background: var(--red-dark); border-color: var(--red); }
+    .toggle input:checked + .toggle-slider::after {
+      transform: translateX(22px);
+      background: var(--red-bright);
+    }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+    .data-table th {
+      background: var(--bg3);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      color: var(--text-dim);
+      padding: 0.7rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border2);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .data-table tr:hover td { background: var(--bg3); color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .topbar { padding: 0 1rem; }
+      .dash-content { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════
+       LOGIN SCREEN
+  ════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-brand">▶ YALLDASH ◀</div>
+      <div class="login-subtitle">OWNER ACCESS REQUIRED</div>
+
+      <div class="field-group">
+        <label class="field-label" for="login-user">Username</label>
+        <input
+          id="login-user"
+          class="field-input"
+          type="text"
+          placeholder="YallCode"
+          autocomplete="username"
+          spellcheck="false"
+        />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="login-pass">Password</label>
+        <input
+          id="login-pass"
+          class="field-input"
+          type="password"
+          placeholder="••••••••••"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button class="login-btn" id="login-btn" onclick="doLogin()">
+        ▶ AUTHENTICATE
+      </button>
+
+      <div class="login-error" id="login-error"></div>
+      <div class="login-spinner" id="login-spinner">AUTHENTICATING...</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════
+       DASHBOARD (hidden until login)
+  ════════════════════════════════ -->
+  <div id="dashboard">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-name">YALLDASH</div>
+        <div class="sidebar-brand-sub">Admin Panel</div>
+      </div>
+
+      <div class="nav-section-label">OVERVIEW</div>
+      <div class="nav-item active" onclick="showPanel('panel-overview', this)">📊 Overview</div>
+      <div class="nav-item" onclick="showPanel('panel-broadcast', this)">📢 Broadcast</div>
+
+      <div class="nav-section-label">MANAGEMENT</div>
+      <div class="nav-item" onclick="showPanel('panel-users', this)">👥 Users</div>
+      <div class="nav-item" onclick="showPanel('panel-levels', this)">🗺 Levels</div>
+      <div class="nav-item" onclick="showPanel('panel-downloads', this)">⬇ Downloads</div>
+
+      <div class="nav-section-label">SERVER</div>
+      <div class="nav-item" onclick="showPanel('panel-settings', this)">⚙ Settings</div>
+      <div class="nav-item" onclick="showPanel('panel-logs', this)">📋 Logs</div>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="doLogout()">← LOG OUT</button>
+      </div>
+    </nav>
+
+    <!-- Right side: topbar + content -->
+    <div class="dash-main">
+
+      <div class="topbar">
+        <div class="topbar-title">YALLDASH / <span id="panel-breadcrumb">Overview</span></div>
+        <div class="user-pill">
+          <span class="user-name" id="dash-username">YallCode</span>
+          <span class="badge badge-owner">OWNER</span>
+          <span class="badge badge-admin">ADMIN</span>
+        </div>
+      </div>
+
+      <div class="dash-content">
+
+        <!-- ── Overview ── -->
+        <div class="panel active" id="panel-overview">
+          <div class="panel-title">📊 OVERVIEW</div>
+          <div class="quick-stats">
+            <div class="qs-card"><div class="qs-label">Total Users</div><div class="qs-value" id="ov-users">—</div></div>
+            <div class="qs-card"><div class="qs-label">Total Levels</div><div class="qs-value" id="ov-levels">—</div></div>
+            <div class="qs-card"><div class="qs-label">Downloads</div><div class="qs-value" id="ov-downloads">—</div></div>
+            <div class="qs-card"><div class="qs-label">Online Now</div><div class="qs-value" id="ov-online">—</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">RECENT ACTIVITY</div>
+            <div class="activity-log" id="overview-log">
+              <div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">Loading activity feed...</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Broadcast ── -->
+        <div class="panel" id="panel-broadcast">
+          <div class="panel-title">📢 BROADCAST MESSAGE</div>
+          <div class="card">
+            <div class="card-title">SEND IN-GAME ALERT</div>
+            <p style="font-size:0.72rem; color:var(--text-dim); margin-bottom:1.2rem;">
+              This message will appear on the YallDash homepage banner and in the game client (if GDPSNotify mod is installed).
+            </p>
+            <div class="form-row">
+              <label class="form-label">Message Text</label>
+              <textarea class="form-textarea" id="bc-message" placeholder="e.g. New update v2.3 is live! Restart your client."></textarea>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Message Type</label>
+              <select class="form-select" id="bc-type">
+                <option value="info">ℹ Info</option>
+                <option value="warning">⚠ Warning</option>
+                <option value="update">🔄 Update</option>
+                <option value="event">🎉 Event</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem;">
+              <button class="action-btn btn-danger" onclick="sendBroadcast()">📢 BROADCAST NOW</button>
+              <button class="action-btn btn-neutral" onclick="clearBroadcast()">✕ CLEAR BROADCAST</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">CURRENT BROADCAST</div>
+            <div id="current-broadcast" style="font-size:0.75rem; color:var(--text-dim); padding:0.5rem 0;">
+              No active broadcast.
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Users ── -->
+        <div class="panel" id="panel-users">
+          <div class="panel-title">👥 USER MANAGEMENT</div>
+          <div class="card">
+            <div class="card-title">REGISTERED USERS</div>
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="users-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>USERNAME</th>
+                    <th>REGISTERED</th>
+                    <th>LEVELS</th>
+                    <th>STATUS</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-dim);">Loading users...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Levels ── -->
+        <div class="panel" id="panel-levels">
+          <div class="panel-title">🗺 LEVEL MANAGEMENT</div>
+          <div class="card">
+            <div class="card-title">PUBLISHED LEVELS</div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr><th>ID</th><th>NAME</th><th>CREATOR</th><th>DOWNLOADS</th><th>LIKES</th><th>ACTIONS</th></tr>
+                </thead>
+                <tbody id="levels-tbody">
+                  <tr><td colspan="6" style="text-align:center; color:var(--text-dim);">Loading levels...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Downloads ── -->
+        <div class="panel" id="panel-downloads">
+          <div class="panel-title">⬇ DOWNLOAD LINKS</div>
+          <div class="card">
+            <div class="card-title">CLIENT BUILDS</div>
+            <div class="form-row">
+              <label class="form-label">Android APK URL</label>
+              <input class="form-input" id="dl-apk" type="url" placeholder="https://..." />
+            </div>
+            <div class="form-row">
+              <label class="form-label">Windows EXE URL</label>
+              <input class="form-input" id="dl-exe" type="url" placeholder="https://..." />
+            </div>
+            <div class="form-row">
+              <label class="form-label">Client Version String</label>
+              <input class="form-input" id="dl-version" type="text" placeholder="e.g. v2.2074" />
+            </div>
+            <button class="action-btn btn-success" onclick="saveDownloads()">💾 SAVE LINKS</button>
+          </div>
+        </div>
+
+        <!-- ── Settings ── -->
+        <div class="panel" id="panel-settings">
+          <div class="panel-title">⚙ SERVER SETTINGS</div>
+          <div class="card">
+            <div class="card-title">GENERAL</div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Registration Open</div>
+                <div class="toggle-desc">Allow new players to register accounts</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-register" checked onchange="saveToggle('registration', this.checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Level Uploads</div>
+                <div class="toggle-desc">Allow players to upload levels</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-uploads" checked onchange="saveToggle('uploads', this.checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Maintenance Mode</div>
+                <div class="toggle-desc">Block all player connections (admin only)</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-maintenance" onchange="saveToggle('maintenance', this.checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Logs ── -->
+        <div class="panel" id="panel-logs">
+          <div class="panel-title">📋 SERVER LOGS</div>
+          <div class="card">
+            <div class="card-title">RECENT LOG ENTRIES</div>
+            <div class="activity-log" id="server-logs" style="max-height:400px;">
+              <div class="log-entry"><span class="log-time">--:--:--</span><span class="log-msg info">Fetching logs...</span></div>
+            </div>
+            <div style="margin-top:1rem;">
+              <button class="action-btn btn-neutral" onclick="fetchLogs()">🔄 REFRESH</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dash-content -->
+    </div><!-- /dash-main -->
+  </div><!-- /dashboard -->
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ═════════════════════════════════════════════════
+    // CONFIG — replace with your actual backend URL
+    // ═════════════════════════════════════════════════
+    const API = 'https://YOUR_BACKEND_URL_HERE';
+
+    // JWT token stored only in sessionStorage (cleared on tab close)
+    // NEVER stored in localStorage to reduce XSS exposure surface
+    const TOKEN_KEY = 'yd_dash_token';
+
+    // ─────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────
+    function getToken() {
+      return sessionStorage.getItem(TOKEN_KEY);
+    }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      };
+    }
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast' + (isError ? ' error' : '');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+      );
+    }
+
+    // ─────────────────────────────────────────────────
+    // LOGIN
+    // Credentials are sent to the backend /api/admin/login
+    // which verifies the bcrypt-hashed password in the DB
+    // and returns a signed JWT. Nothing secret lives here.
+    // ─────────────────────────────────────────────────
+    async function doLogin() {
+      const username = document.getElementById('login-user').value.trim();
+      const password = document.getElementById('login-pass').value;
+      const errEl    = document.getElementById('login-error');
+      const spinEl   = document.getElementById('login-spinner');
+      const btn      = document.getElementById('login-btn');
+
+      errEl.style.display   = 'none';
+      spinEl.style.display  = 'block';
+      btn.disabled          = true;
+
+      try {
+        const res = await fetch(`${API}/api/admin/login`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ username, password }),
+          signal:  AbortSignal.timeout(10_000)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Invalid credentials.');
+        }
+
+        // Store token in sessionStorage (not localStorage)
+        sessionStorage.setItem(TOKEN_KEY, data.token);
+
+        // Show dashboard
+        spinEl.style.display = 'none';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').classList.add('visible');
+        document.getElementById('dash-username').textContent = data.username || username;
+
+        // Load initial data
+        loadOverview();
+        fetchLogs();
+
+      } catch (err) {
+        spinEl.style.display  = 'none';
+        btn.disabled          = false;
+        errEl.style.display   = 'block';
+        errEl.textContent     = `✕ ${err.message}`;
+      }
+    }
+
+    // Allow Enter key on password field
+    document.getElementById('login-pass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    // ─────────────────────────────────────────────────
+    // SESSION CHECK on load (if token already exists)
+    // ─────────────────────────────────────────────────
+    (async () => {
+      const token = getToken();
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API}/api/admin/me`, {
+          headers: authHeaders(),
+          signal:  AbortSignal.timeout(6000)
+        });
+        if (!res.ok) { sessionStorage.removeItem(TOKEN_KEY); return; }
+        const data = await res.json();
+
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').classList.add('visible');
+        document.getElementById('dash-username').textContent = data.username || 'YallCode';
+        loadOverview();
+        fetchLogs();
+      } catch {
+        sessionStorage.removeItem(TOKEN_KEY);
+      }
+    })();
+
+    // ─────────────────────────────────────────────────
+    // LOGOUT
+    // ─────────────────────────────────────────────────
+    async function doLogout() {
+      try {
+        await fetch(`${API}/api/admin/logout`, {
+          method: 'POST',
+          headers: authHeaders()
+        });
+      } catch {}
+      sessionStorage.removeItem(TOKEN_KEY);
+      document.getElementById('dashboard').classList.remove('visible');
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('login-pass').value = '';
+    }
+
+    // ─────────────────────────────────────────────────
+    // PANEL NAVIGATION
+    // ─────────────────────────────────────────────────
+    function showPanel(panelId, navEl) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      if (navEl) navEl.classList.add('active');
+
+      const titles = {
+        'panel-overview':   'Overview',
+        'panel-broadcast':  'Broadcast',
+        'panel-users':      'Users',
+        'panel-levels':     'Levels',
+        'panel-downloads':  'Downloads',
+        'panel-settings':   'Settings',
+        'panel-logs':       'Logs',
+      };
+      document.getElementById('panel-breadcrumb').textContent = titles[panelId] || panelId;
+
+      // Lazy-load panel data
+      if (panelId === 'panel-users')  fetchUsers();
+      if (panelId === 'panel-levels') fetchLevels();
+    }
+
+    // ─────────────────────────────────────────────────
+    // OVERVIEW
+    // ─────────────────────────────────────────────────
+    async function loadOverview() {
+      try {
+        const res = await fetch(`${API}/api/admin/stats`, { headers: authHeaders() });
+        const d   = await res.json();
+        document.getElementById('ov-users').textContent     = (d.users ?? 0).toLocaleString();
+        document.getElementById('ov-levels').textContent    = (d.levels ?? 0).toLocaleString();
+        document.getElementById('ov-downloads').textContent = (d.downloads ?? 0).toLocaleString();
+        document.getElementById('ov-online').textContent    = (d.online ?? 0).toLocaleString();
+      } catch {
+        ['ov-users','ov-levels','ov-downloads','ov-online'].forEach(id => {
+          document.getElementById(id).textContent = 'ERR';
+        });
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // BROADCAST
+    // ─────────────────────────────────────────────────
+    async function sendBroadcast() {
+      const message = document.getElementById('bc-message').value.trim();
+      const type    = document.getElementById('bc-type').value;
+      if (!message) { showToast('Message cannot be empty.', true); return; }
+
+      try {
+        const res = await fetch(`${API}/api/admin/broadcast`, {
+          method:  'POST',
+          headers: authHeaders(),
+          body:    JSON.stringify({ message, type })
+        });
+        if (!res.ok) throw new Error('Failed');
+        showToast('✓ Broadcast sent!');
+        document.getElementById('current-broadcast').innerHTML =
+          `<span style="color:var(--gold)">[${type.toUpperCase()}]</span> ${escapeHtml(message)}`;
+      } catch {
+        showToast('✕ Broadcast failed.', true);
+      }
+    }
+
+    async function clearBroadcast() {
+      try {
+        await fetch(`${API}/api/admin/broadcast`, {
+          method: 'DELETE', headers: authHeaders()
+        });
+        showToast('✓ Broadcast cleared.');
+        document.getElementById('current-broadcast').textContent = 'No active broadcast.';
+      } catch {
+        showToast('✕ Failed to clear.', true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // USERS
+    // ─────────────────────────────────────────────────
+    async function fetchUsers() {
+      const tbody = document.getElementById('users-tbody');
+      try {
+        const res   = await fetch(`${API}/api/admin/users?limit=50`, { headers: authHeaders() });
+        const users = await res.json();
+        if (!users.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No users yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = users.map(u => `
+          <tr>
+            <td>${escapeHtml(u.id)}</td>
+            <td style="color:var(--text)">${escapeHtml(u.username)}</td>
+            <td>${escapeHtml(u.registered ?? '—')}</td>
+            <td>${u.levelCount ?? 0}</td>
+            <td><span style="color:${u.banned ? 'var(--red-bright)' : 'var(--green)'}">
+              ${u.banned ? 'BANNED' : 'OK'}
+            </span></td>
+            <td>
+              <button class="action-btn btn-neutral" style="padding:0.3rem 0.6rem"
+                onclick="banUser(${u.id}, ${u.banned})">
+                ${u.banned ? 'UNBAN' : 'BAN'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--red-bright)">Failed to load.</td></tr>';
+      }
+    }
+
+    async function banUser(id, currentlyBanned) {
+      const endpoint = currentlyBanned ? 'unban' : 'ban';
+      try {
+        const res = await fetch(`${API}/api/admin/users/${id}/${endpoint}`, {
+          method: 'POST', headers: authHeaders()
+        });
+        if (!res.ok) throw new Error();
+        showToast(`✓ User ${endpoint}ned.`);
+        fetchUsers();
+      } catch {
+        showToast(`✕ Action failed.`, true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // LEVELS
+    // ─────────────────────────────────────────────────
+    async function fetchLevels() {
+      const tbody = document.getElementById('levels-tbody');
+      try {
+        const res    = await fetch(`${API}/api/admin/levels?limit=50`, { headers: authHeaders() });
+        const levels = await res.json();
+        if (!levels.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No levels yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = levels.map(l => `
+          <tr>
+            <td>${escapeHtml(l.id)}</td>
+            <td style="color:var(--text)">${escapeHtml(l.name)}</td>
+            <td>${escapeHtml(l.creator)}</td>
+            <td>${l.downloads ?? 0}</td>
+            <td>${l.likes ?? 0}</td>
+            <td>
+              <button class="action-btn btn-neutral" style="padding:0.3rem 0.6rem"
+                onclick="deleteLevel(${l.id})">
+                DELETE
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--red-bright)">Failed to load.</td></tr>';
+      }
+    }
+
+    async function deleteLevel(id) {
+      if (!confirm('Delete level ' + id + '? This is permanent.')) return;
+      try {
+        const res = await fetch(`${API}/api/admin/levels/${id}`, {
+          method: 'DELETE', headers: authHeaders()
+        });
+        if (!res.ok) throw new Error();
+        showToast('✓ Level deleted.');
+        fetchLevels();
+      } catch {
+        showToast('✕ Delete failed.', true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // DOWNLOADS CONFIG
+    // ─────────────────────────────────────────────────
+    async function saveDownloads() {
+      const apk     = document.getElementById('dl-apk').value.trim();
+      const exe     = document.getElementById('dl-exe').value.trim();
+      const version = document.getElementById('dl-version').value.trim();
+      try {
+        const res = await fetch(`${API}/api/admin/config/downloads`, {
+          method:  'POST',
+          headers: authHeaders(),
+          body:    JSON.stringify({ apk, exe, version })
+        });
+        if (!res.ok) throw new Error();
+        showToast('✓ Download links saved.');
+      } catch {
+        showToast('✕ Save failed.', true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // TOGGLES
+    // ─────────────────────────────────────────────────
+    async function saveToggle(key, value) {
+      try {
+        await fetch(`${API}/api/admin/config/${key}`, {
+          method:  'POST',
+          headers: authHeaders(),
+          body:    JSON.stringify({ value })
+        });
+        showToast(`✓ ${key} ${value ? 'enabled' : 'disabled'}.`);
+      } catch {
+        showToast('✕ Setting failed.', true);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    // LOGS
+    // ─────────────────────────────────────────────────
+    async function fetchLogs() {
+      const logEl = document.getElementById('server-logs');
+      const ovLog = document.getElementById('overview-log');
+      try {
+        const res  = await fetch(`${API}/api/admin/logs?limit=40`, { headers: authHeaders() });
+        const logs = await res.json();
+
+        const renderLogs = entries => entries.map(l => `
+          <div class="log-entry">
+            <span class="log-time">${escapeHtml(l.time ?? '--:--:--')}</span>
+            <span class="log-msg ${escapeHtml(l.level ?? 'info')}">${escapeHtml(l.message)}</span>
+          </div>
+        `).join('');
+
+        const html = renderLogs(logs);
+        logEl.innerHTML = html;
+        ovLog.innerHTML = renderLogs(logs.slice(0, 8));
+      } catch {
+        logEl.innerHTML = '<div class="log-entry"><span class="log-msg error">Could not fetch logs.</span></div>';
+        ovLog.innerHTML = '<div class="log-entry"><span class="log-msg error">Offline.</span></div>';
+      }
+    }
+  </script>
+</body>
+</html>
